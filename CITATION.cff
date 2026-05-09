@@ -1,11 +1,6 @@
 cff-version: 1.2.0
-message: "If you use this model, please cite it as below."
-authors:
-  - family-names: Adedeji
-    given-names: John Adeyemo
-    orcid: https://orcid.org/0009-0004-1257-4551
-title: "ÌṢỌ Sentinel EcN: A fitness-aware computational model of an engineered probiotic gut sentinel"
-version: 0.1.0
-date-released: 2026-04-19
-url: "https://github.com/Jonahnki/iso-sentinel-ecn"
-license: MIT
+message: "If you use this software, please cite it as below."
+title: "ÌṢỌ Sentinel EcN"
+version: 1.0.0
+doi: 10.5281/zenodo.19362601
+date-released: 2026-05-09
