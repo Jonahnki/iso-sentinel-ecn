@@ -88,12 +88,11 @@ On each parameter update, the model recomputes the coupled ODE system and update
 
 If you use this work, please cite:
 
-[![DOI](https://zenodo.org/badge/1187462265.svg)](https://doi.org/10.5281/zenodo.20098745
-)
+[![DOI](https://zenodo.org/badge/1187462265.svg)](https://doi.org/10.5281/zenodo.20098747)
 
 or:
 
-> DOI: 10.5281/zenodo.20098745 
+> DOI: 10.5281/zenodo.20098747 
 
 ## License
 
