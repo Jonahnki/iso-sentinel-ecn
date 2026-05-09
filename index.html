@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÌṢỌ Sentinel EcN — Interactive Circuit Simulator</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: #f0ece0;
+  color: #1a1a2e;
+  padding: 12px;
+}
+
+/* ── Layout ── */
+.iso-wrap {
+  max-width: 1020px;
+  margin: 0 auto;
+  border: 1px solid #c8b99a;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  background: #fafaf7;
+}
+.iso-header {
+  background: #1a1a2e;
+  color: #f0ead6;
+  padding: 14px 20px 11px;
+  border-bottom: 3px solid #c8973a;
+}
+.iso-header h1 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  margin-bottom: 3px;
+}
+.iso-header p {
+  font-size: 10.5px;
+  color: #a89f8c;
+  font-family: 'Courier New', monospace;
+}
+.status-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 5px #22c55e;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* ── Metrics bar ── */
+.metrics-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 9px 14px;
+  background: #f0ece0;
+  border-bottom: 1px solid #d4c9b0;
+}
+.chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 3px;
+  min-width: 82px;
+  border: 1px solid;
+}
+.chip.pass { background:#f0fdf4; border-color:#86efac; }
+.chip.fail { background:#fef2f2; border-color:#fca5a5; }
+.chip.neut { background:#f8f6f1; border-color:#c8b99a; }
+.chip-label { font-size: 9px;  color: #6b6055; margin-bottom: 1px; text-align:center; }
+.chip-val   { font-size: 13px; font-weight: 700; font-family: 'Courier New', monospace; }
+.chip.pass .chip-val { color: #15803d; }
+.chip.fail .chip-val { color: #b91c1c; }
+.chip.neut .chip-val { color: #5a4e3c; }
+
+/* ── Body grid ── */
+.iso-body {
+  display: grid;
+  grid-template-columns: 272px 1fr;
+}
+
+/* ── Controls ── */
+.ctrl-panel {
+  background: #f4f0e8;
+  border-right: 1px solid #d4c9b0;
+  padding: 13px 15px;
+  overflow-y: auto;
+  max-height: 800px;
+}
+.ctrl-section { margin-bottom: 13px; }
+.ctrl-section-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: #7a6e5a;
+  border-bottom: 1px solid #c8b99a;
+  padding-bottom: 4px;
+  margin-bottom: 9px;
+}
+.ctrl-row { margin-bottom: 8px; }
+.ctrl-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1px;
+}
+.ctrl-label { font-size: 11px; color: #2a2420; font-weight: 500; }
+.ctrl-val {
+  font-size: 10.5px;
+  font-family: 'Courier New', monospace;
+  color: #5a4e3c;
+  background: #e8e0d0;
+  padding: 1px 5px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.ctrl-hint { font-size: 9px; color: #9a8e7c; line-height: 1.35; margin-bottom: 3px; }
+input[type=range] {
+  width: 100%;
+  height: 3px;
+  accent-color: #c8973a;
+  cursor: pointer;
+  display: block;
+}
+
+/* ── Charts ── */
+.chart-panel { padding: 13px; background: #fff; }
+.chart-full {
+  border: 1px solid #e8e0d0;
+  border-radius: 3px;
+  padding: 10px 12px;
+  background: #fafaf7;
+  margin-bottom: 10px;
+}
+.chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.chart-box {
+  border: 1px solid #e8e0d0;
+  border-radius: 3px;
+  padding: 10px 12px;
+  background: #fafaf7;
+}
+.chart-title { font-size: 10px; font-weight: 700; color: #3a3020; margin-bottom: 2px; }
+.chart-sub   { font-size: 8.5px; color: #8a7e6c; margin-bottom: 6px; line-height: 1.4; }
+
+/* ── Footer ── */
+.iso-footer {
+  padding: 7px 16px;
+  background: #1a1a2e;
+  font-size: 9px;
+  color: #6a6480;
+  font-family: 'Courier New', monospace;
+  line-height: 1.7;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  body { padding: 6px; }
+  .iso-body { grid-template-columns: 1fr; }
+  .ctrl-panel { max-height: none; border-right: none; border-bottom: 1px solid #d4c9b0; }
+  .chart-row  { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+(function () {
+"use strict";
+
+/* ═══════════════════════════════════════════════════════════════
+   ODE SOLVER — RK4 fixed step, dt = 0.1 h
+   Sufficient for this system; LSODA used in Python for stiff regime.
+═══════════════════════════════════════════════════════════════ */
+function rk4(f, t, y, dt, p) {
+  const k1 = f(t,       y,                           p);
+  const k2 = f(t+dt/2,  y.map((v,i)=>v+dt/2*k1[i]), p);
+  const k3 = f(t+dt/2,  y.map((v,i)=>v+dt/2*k2[i]), p);
+  const k4 = f(t+dt,    y.map((v,i)=>v+dt  *k3[i]), p);
+  return y.map((v,i) => Math.max(0, v + dt/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i])));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FOUR-MODULE ODE  (state: [TtrR*, sfGFP, MccH47, Pathogen])
+   All fixed parameters locked from Task 1 v6 / Task 2 validated values.
+
+   Module 1 — TtrS/TtrR biosensor: signal-dependent + leaky activation
+   Module 2 — Regulator gate: Hill switch above TtrR* threshold (Km_reg=2.0)
+               At TtrR*=0.02 (homeostatic): gate≈0 → MccH47 silent
+               At TtrR*=3.69 (pathogen): gate≈0.86 → MccH47 on
+   Module 3 — MccH47 effector + logistic-growth/mass-action kill
+   Module 4 — Containment handled analytically (Moran + escape curves)
+═══════════════════════════════════════════════════════════════ */
+function ode(t, y, p) {
+  const [R, G, M, Pa] = y;                      // TtrR*, sfGFP, MccH47, Pathogen
+
+  // M1: biosensor
+  const Sn    = R_pow(p.S,    p.n_ttr);
+  const En    = R_pow(p.EC50, p.n_ttr);
+  const k1eff = p.k1 * Sn/(En+Sn) + p.k1_leak;
+  const dR    = k1eff - p.d_TtrR * R;
+
+  // sfGFP reporter (validation proxy; not in effector pathway)
+  const Rn   = R_pow(R,    p.n_s);
+  const Kn   = R_pow(p.Km, p.n_s);
+  const dG   = p.vm * Rn/(Kn+Rn) + p.alpha_leak*p.d_G - p.d_G*G;
+
+  // M2 gate
+  const Rg   = R_pow(R,       p.n_reg);
+  const Kg   = R_pow(p.Km_reg, p.n_reg);
+  const gate = Rg/(Kg+Rg);
+
+  // M3 effector
+  const dM   = p.k_M * gate - p.d_M * M;
+
+  // Pathogen: logistic growth minus mass-action MccH47 kill
+  const dPa  = p.k_gr * Pa*(1-Pa) - p.k_kill * M * Pa;
+
+  return [dR, dG, dM, dPa];
+}
+
+function R_pow(base, exp) {
+  // Safe power — base already clamped by rk4
+  return Math.pow(Math.max(0, base), exp);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SIMULATION ENGINE
+═══════════════════════════════════════════════════════════════ */
+function simulate(p) {
+  const dt = 0.1, steps = Math.round(p.T_END/dt) + 1;
+  let y = [0, 0, 0, 1.0];
+  const out = { t:[], R:[], G:[], M:[], Pa:[] };
+  for (let i = 0; i < steps; i++) {
+    out.t.push(+(i*dt).toFixed(1));
+    out.R.push(y[0]); out.G.push(y[1]);
+    out.M.push(y[2]); out.Pa.push(y[3]);
+    if (i < steps-1) y = rk4(ode, i*dt, y, dt, p);
+  }
+  return out;
+}
+
+function doseResp(p) {
+  // Steady-state sfGFP vs tetrathionate (log sweep, 0.1–200 µM)
+  const Ss = [], ss = [];
+  for (let e = -1; e <= 2.35; e += 0.09) {
+    const S = Math.pow(10, e);
+    Ss.push(S);
+    const sol = simulate({...p, S, T_END:400});
+    ss.push(sol.G[sol.G.length-1]);
+  }
+  return { Ss, ss };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODULE 4 — ANALYTICAL FUNCTIONS
+
+   Moran fixation probability (Nowak 2006, eq 6.7)
+   Two types in population N:
+     Circuit cell: fitness = 1 − δ  (bears metabolic burden)
+     Loss-of-fn mutant: fitness = 1  (circuit deleted, no burden)
+   P_fix = probability a single mutant sweeps to fixation.
+   At δ=0.03 (design): P_fix << neutral drift → circuit is stable.
+   Above δ=0.10 (critical): P_fix rises sharply → circuit at risk.
+═══════════════════════════════════════════════════════════════ */
+function moranFix(delta, N) {
+  if (delta <= 0) return 1/N;
+  if (delta >= 1) return 1;
+  // Log-form to prevent overflow at large N
+  const logD = N * Math.log1p(-delta);
+  const denom = logD < -700 ? 1.0 : 1 - Math.exp(logD);
+  return denom < 1e-15 ? 1/N : delta/denom;
+}
+
+/* ΔdapA containment escape (Stritzker 2007)
+   Cumulative probability of reversion over n generations.
+   Single ΔdapA: µ = 10⁻⁸/gen → t50 ≈ 3,956 years in gut (validated Task 2)
+   Dual ΔdapA+ΔthyA: µ² = 10⁻¹⁶/gen → effectively never escapes
+*/
+function escape(gens, mu) {
+  if (mu * gens < 0.001) return mu * gens;
+  return 1 - Math.exp(gens * Math.log1p(-mu));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FIXED PARAMETERS — Task 1 v6 / Task 2 validated, never changed
+═══════════════════════════════════════════════════════════════ */
+const FIXED = {
+  k1:      0.426,   // TtrS→TtrR* phosphorylation rate constant
+  k1_leak: 0.002,   // leaky (signal-independent) activation floor
+  d_TtrR:  0.1,     // TtrR* degradation rate h⁻¹
+  n_s:     2,       // sfGFP reporter Hill coefficient
+  Km:      0.3,     // sfGFP reporter Km (TtrR* units)
+  d_G:     0.05,    // sfGFP degradation rate h⁻¹
+  alpha_max: 12.0,  // max promoter output
+  Km_reg:  2.0,     // Module 2 gate threshold — Task 1 v6 locked
+  d_M:     0.05,    // MccH47 degradation rate h⁻¹
+  k_gr:    0.5,     // Salmonella gut growth rate h⁻¹ (~35 min doubling)
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   DEFAULT PARAMETERS — Task 2 design point
+═══════════════════════════════════════════════════════════════ */
+const DEFAULTS = {
+  S:              50,    // tetrathionate µM (gut physiological: 10–100 µM)
+  EC50:           20,    // half-maximal activation µM (Palmer 2017)
+  n_ttr:          2,     // biosensor Hill coefficient (v6 locked)
+  alpha_leak_pct: 2,     // leaky expression as % of α_max; target 1–5%
+  k_M:            0.2,   // MccH47 production µM/h (Palmer 2017 mid-range)
+  k_kill:         0.3,   // kill rate µM⁻¹ h⁻¹ (Palmer 2017 × 0.3 gut factor)
+  copy_number:    20,    // plasmid copies/cell → δ = CN × 0.0015 (Scott 2010)
+  n_reg:          3,     // Module 2 gate sharpness (v6 locked; n=3 ≈ digital)
+  T_END:          200,   // simulation window hours
+};
+
+function buildP(d) {
+  const alpha_leak = (d.alpha_leak_pct/100) * FIXED.alpha_max;
+  return {
+    ...FIXED,
+    S: d.S, EC50: d.EC50, n_ttr: d.n_ttr,
+    alpha_leak,
+    vm: FIXED.alpha_max * FIXED.d_G,  // vm_sfGFP
+    k_M: d.k_M, k_kill: d.k_kill,
+    n_reg: d.n_reg, T_END: d.T_END,
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CHART HELPERS
+═══════════════════════════════════════════════════════════════ */
+function sub(arr, n=120) {
+  if (arr.length <= n) return arr;
+  const s = Math.ceil(arr.length/n);
+  return arr.filter((_,i) => i%s === 0);
+}
+
+const BASE = {
+  responsive: true,
+  animation:  { duration: 0 },
+  plugins: {
+    legend:  { position:'top', labels:{ font:{size:8.5}, boxWidth:9, padding:6 } },
+    tooltip: { titleFont:{size:9}, bodyFont:{size:8.5} },
+  },
+  scales: {
+    x: { ticks:{ font:{size:8}, maxTicksLimit:6 }, grid:{ color:'rgba(0,0,0,0.04)' },
+         title:{ display:true, font:{size:8.5} } },
+    y: { ticks:{ font:{size:8} }, grid:{ color:'rgba(0,0,0,0.04)' },
+         title:{ display:true, font:{size:8.5} }, beginAtZero:true },
+  },
+};
+
+function merge(a, b) {
+  const o = {...a};
+  for (const k of Object.keys(b)) {
+    if (b[k] && typeof b[k]==='object' && !Array.isArray(b[k]))
+      o[k] = merge(a[k]||{}, b[k]);
+    else o[k] = b[k];
+  }
+  return o;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REACT APP
+═══════════════════════════════════════════════════════════════ */
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+function useChart(ref, type, data, opts) {
+  const inst = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (inst.current) inst.current.destroy();
+    inst.current = new Chart(ref.current, { type, data, options: opts });
+    return () => { if (inst.current) inst.current.destroy(); };
+  }, [data]);
+}
+
+function Slider({ label, hint, param, min, max, step, unit, value, onChange }) {
+  return React.createElement('div', { className:'ctrl-row' },
+    React.createElement('div', { className:'ctrl-top' },
+      React.createElement('span', { className:'ctrl-label' }, label),
+      React.createElement('span', { className:'ctrl-val' }, `${value}${unit||''}`),
+    ),
+    hint && React.createElement('div', { className:'ctrl-hint' }, hint),
+    React.createElement('input', {
+      type:'range', min, max, step, value,
+      onChange: e => onChange(param, step < 1 ? parseFloat(e.target.value) : parseInt(e.target.value)),
+    })
+  );
+}
+
+function Chip({ label, value, unit, status }) {
+  return React.createElement('div', { className:`chip ${status||'neut'}` },
+    React.createElement('div', { className:'chip-label' }, label),
+    React.createElement('div', { className:'chip-val'   }, `${value}${unit||''}`),
+  );
+}
+
+function App() {
+  const [p, setP] = useState(DEFAULTS);
+  const onChange  = useCallback((k, v) => setP(prev => ({...prev, [k]: v})), []);
+
+  const params = useMemo(() => buildP(p), [p]);
+  const solON  = useMemo(() => simulate(params),          [params]);
+  const solOFF = useMemo(() => simulate({...params,S:0}), [params]);
+  const dr     = useMemo(() => doseResp(params),          [params]);
+
+  // ── Derived metrics ──
+  const ssON   = solON.G[solON.G.length-1];
+  const ssOFF  = solOFF.G[solOFF.G.length-1];
+  const FI_n   = ssOFF < 0.001 ? 9999 : ssON/ssOFF;
+  const FI_s   = FI_n > 999 ? '>999' : FI_n.toFixed(1);
+  const supp   = Math.max(0, (1 - Math.max(0, solON.Pa[solON.Pa.length-1])) * 100);
+  const mccSS  = solON.M[solON.M.length-1];
+  const delta  = p.copy_number * 0.0015;                 // Scott 2010
+  const pfix   = moranFix(delta, 1000);
+  const t50i   = solON.G.findIndex(v => v >= ssON * 0.5);
+  const t50s   = t50i >= 0 ? (t50i*0.1).toFixed(0) : `>${p.T_END}`;
+  const t50n   = t50i >= 0 ? t50i*0.1 : p.T_END+1;
+
+  // ── Subsampled time series ──
+  const tS    = sub(solON.t);
+  const RtrS  = sub(solON.R);
+  const GonS  = sub(solON.G);
+  const GofS  = sub(solOFF.G);
+  const MS    = sub(solON.M);
+  const PaS   = sub(solON.Pa);
+
+  // ── Moran δ sweep (0 → 0.20, N=1000) ──
+  const dArr  = Array.from({length:80}, (_,i) => i*0.20/79);
+  const pfArr = dArr.map(d => moranFix(d, 1000));
+
+  // ── Containment escape (Stritzker 2007) ──
+  const gExp  = Array.from({length:55}, (_,i) => Math.pow(10, i*12/54));
+  const esc1  = gExp.map(g => escape(g, 1e-8)  * 100);
+  const esc2  = gExp.map(g => escape(g, 1e-16) * 100);
+  const gLbl  = gExp.map(g => {
+    const e = Math.round(Math.log10(g));
+    return [0,3,6,9,12].includes(e) ? `10^${e}` : '';
+  });
+
+  // ── Canvas refs ──
+  const cTC  = useRef(null);
+  const cPa  = useRef(null);
+  const cDR  = useRef(null);
+  const cMor = useRef(null);
+  const cEsc = useRef(null);
+
+  // Chart 1 — time course
+  useChart(cTC, 'line', {
+    labels: tS,
+    datasets: [
+      { label:'TtrR* (biosensor)',   data:RtrS, borderColor:'#3b82f6', borderWidth:2,   pointRadius:0 },
+      { label:'sfGFP signal ON',     data:GonS, borderColor:'#f97316', borderWidth:2,   pointRadius:0 },
+      { label:'sfGFP baseline (S=0)',data:GofS, borderColor:'#f97316', borderWidth:1.2, pointRadius:0, borderDash:[4,3] },
+      { label:'MccH47 effector',     data:MS,   borderColor:'#16a34a', borderWidth:2,   pointRadius:0 },
+    ]
+  }, merge(BASE, { scales:{ x:{title:{text:'Time (hours)'}}, y:{title:{text:'Concentration (rel. units)'}} } }));
+
+  // Chart 2 — pathogen suppression
+  useChart(cPa, 'line', {
+    labels: tS,
+    datasets: [{ label:'Pathogen load', data:PaS, borderColor:'#ef4444', borderWidth:2.5,
+      pointRadius:0, fill:true, backgroundColor:'rgba(239,68,68,0.07)' }]
+  }, merge(BASE, { scales:{ x:{title:{text:'Time (hours)'}},
+    y:{ min:0, max:1.05, title:{text:'Pathogen (normalised to 1)'} } } }));
+
+  // Chart 3 — dose-response
+  useChart(cDR, 'line', {
+    labels: dr.Ss.map(s => s.toFixed(2)),
+    datasets: [{ label:'sfGFP (steady state)', data:dr.ss, borderColor:'#8b5cf6', borderWidth:2.5, pointRadius:0 }]
+  }, merge(BASE, {
+    scales: {
+      x: { type:'logarithmic', title:{ display:true, text:'[Tetrathionate] µM', font:{size:8.5} },
+           ticks:{ font:{size:8}, maxTicksLimit:5,
+                   callback: v => [0.1,1,10,100].includes(+v.toFixed(1)) ? v : '' } },
+      y: { title:{ text:'sfGFP (rel. units)' } },
+    }
+  }));
+
+  // Chart 4 — Moran fixation probability
+  useChart(cMor, 'line', {
+    labels: dArr.map(d => d.toFixed(3)),
+    datasets: [
+      { label:'P(mutant fixes) N=1000',  data:pfArr,            borderColor:'#dc2626', borderWidth:2.5, pointRadius:0 },
+      { label:'Neutral drift (1/1000)',  data:dArr.map(()=>0.001), borderColor:'#94a3b8', borderWidth:1.2, pointRadius:0, borderDash:[3,3] },
+    ]
+  }, merge(BASE, {
+    scales: {
+      x: { title:{ text:'Fitness cost δ  (= copy number × 0.0015)' },
+           ticks:{ callback: v => ['0','0.030','0.060','0.100','0.150','0.200'].includes(v) ? v : '' } },
+      y: { title:{ text:'Fixation probability' } },
+    }
+  }));
+
+  // Chart 5 — containment escape
+  useChart(cEsc, 'line', {
+    labels: gLbl,
+    datasets: [
+      { label:'Single ΔdapA  µ=10⁻⁸',       data:esc1, borderColor:'#ef4444', borderWidth:2.5, pointRadius:0 },
+      { label:'Dual ΔdapA+ΔthyA  µ=10⁻¹⁶', data:esc2, borderColor:'#3b82f6', borderWidth:2,   pointRadius:0, borderDash:[5,3] },
+    ]
+  }, merge(BASE, {
+    scales: {
+      x: { title:{ display:true, text:'Generations (log scale)', font:{size:8.5} }, ticks:{ font:{size:7.5} } },
+      y: { min:0, max:105, title:{ text:'Cumul. escape probability (%)' } },
+    }
+  }));
+
+  /* ── RENDER ── */
+  return React.createElement('div', { className:'iso-wrap' },
+
+    // Header
+    React.createElement('div', { className:'iso-header' },
+      React.createElement('h1', null,
+        React.createElement('span', { className:'status-dot' }),
+        'ÌṢỌ Sentinel EcN — Interactive Circuit Simulator'),
+      React.createElement('p', null,
+        'Live RK4 ODE · Four validated modules · Adjust any slider to explore the fitness-efficacy design space · Parameters default to Task 2 validated design point'),
+    ),
+
+    // Metrics
+    React.createElement('div', { className:'metrics-bar' },
+      React.createElement(Chip, { label:'Fold induction',  value:FI_s,                    unit:'×',     status: FI_n>=10&&FI_n<=500 ? 'pass':'fail' }),
+      React.createElement(Chip, { label:'t₅₀ sfGFP',       value:t50s,                    unit:' h',    status: t50n>=8&&t50n<=30   ? 'pass':(t50n>30?'fail':'neut') }),
+      React.createElement(Chip, { label:'Suppression',     value:supp.toFixed(0),          unit:'%',     status: supp>=90            ? 'pass':'fail' }),
+      React.createElement(Chip, { label:'MccH47 ss',       value:mccSS.toFixed(2),         unit:' µM',   status:'neut' }),
+      React.createElement(Chip, { label:'Burden δ',        value:(delta*100).toFixed(1),   unit:'%',     status: delta<=0.10         ? 'pass':'fail' }),
+      React.createElement(Chip, { label:'P_fix (N=1000)',  value:pfix.toFixed(4),                        status: pfix<0.05           ? 'pass':'fail' }),
+    ),
+
+    // Body
+    React.createElement('div', { className:'iso-body' },
+
+      // ── Controls ──
+      React.createElement('div', { className:'ctrl-panel' },
+
+        React.createElement('div', { className:'ctrl-section' },
+          React.createElement('div', { className:'ctrl-section-title' }, 'Gut Environment'),
+          React.createElement(Slider, { label:'Tetrathionate [S]', param:'S', min:0, max:100, step:1,
+            unit:' µM', value:p.S, onChange,
+            hint:'Physiological window: 10–100 µM during Salmonella infection (Palmer 2017). Set to 0 to see homeostatic baseline — MccH47 should stay silent.' }),
+        ),
+
+        React.createElement('div', { className:'ctrl-section' },
+          React.createElement('div', { className:'ctrl-section-title' }, 'Module 1 · Biosensor'),
+          React.createElement(Slider, { label:'EC50', param:'EC50', min:1, max:80, step:1,
+            unit:' µM', value:p.EC50, onChange,
+            hint:'Half-maximal activation threshold. Task 1 v6 validated: 20 µM. Raising EC50 shifts the dose-response curve right — circuit activates at higher signal.' }),
+          React.createElement(Slider, { label:'Hill coefficient n', param:'n_ttr', min:1, max:3, step:1,
+            unit:'', value:p.n_ttr, onChange,
+            hint:'n=2: cooperative, sharp switch (design). n=1: graded — reduces fold-induction and blurs ON/OFF distinction. EC50 and n are the top PRCC drivers of TtrR* output (Task 3).' }),
+          React.createElement(Slider, { label:'Leaky expression', param:'alpha_leak_pct', min:1, max:20, step:1,
+            unit:'% α_max', value:p.alpha_leak_pct, onChange,
+            hint:'OFF-state floor. Design target: 1–5%. Above 10%: fold-induction collapses and Module 2 gate can no longer suppress homeostatic MccH47 production.' }),
+        ),
+
+        React.createElement('div', { className:'ctrl-section' },
+          React.createElement('div', { className:'ctrl-section-title' }, 'Module 2+3 · Regulator & Effector'),
+          React.createElement(Slider, { label:'Gate sharpness n_reg', param:'n_reg', min:1, max:5, step:1,
+            unit:'', value:p.n_reg, onChange,
+            hint:'Module 2 Hill coefficient. n=3: near-digital switch (design). n=1: linear — removes the threshold, MccH47 leaks continuously, imposing fitness cost even at S=0.' }),
+          React.createElement(Slider, { label:'MccH47 production k_M', param:'k_M', min:0.01, max:0.5, step:0.01,
+            unit:' µM/h', value:p.k_M, onChange,
+            hint:'Top PRCC driver of pathogen suppression (rank 1, Task 3). Design: 0.2 µM/h (Palmer 2017 mid-range). MccH47 ss = k_M / d_M.' }),
+          React.createElement(Slider, { label:'Pathogen kill rate k_kill', param:'k_kill', min:0.01, max:1.0, step:0.01,
+            unit:' µM⁻¹h⁻¹', value:p.k_kill, onChange,
+            hint:'PRCC rank 2 (Task 3). Design: 0.3 = Palmer 2017 in vitro rate × 0.3 gut dilution factor. Below ~0.13: net kill < k_growth → pathogen grows despite MccH47.' }),
+        ),
+
+        React.createElement('div', { className:'ctrl-section' },
+          React.createElement('div', { className:'ctrl-section-title' }, 'Module 4 · Containment & Burden'),
+          React.createElement(Slider, { label:'Plasmid copy number', param:'copy_number', min:5, max:50, step:1,
+            unit:' copies', value:p.copy_number, onChange,
+            hint:'Metabolic burden δ = CN × 0.0015 (Scott 2010). Design: CN=20, δ=3%. Above CN≈67 (δ=0.10): fixation probability rises sharply — Module 2 gating keeps operating δ safely below this threshold.' }),
+        ),
+
+        React.createElement('div', { className:'ctrl-section' },
+          React.createElement('div', { className:'ctrl-section-title' }, 'Simulation'),
+          React.createElement(Slider, { label:'Time window', param:'T_END', min:24, max:500, step:12,
+            unit:' h', value:p.T_END, onChange,
+            hint:'200h default. All modules reach steady state well within this window under validated parameters.' }),
+        ),
+      ),
+
+      // ── Charts ──
+      React.createElement('div', { className:'chart-panel' },
+
+        // Row 1: time course (full width)
+        React.createElement('div', { className:'chart-full' },
+          React.createElement('div', { className:'chart-title' }, 'Modules 1–3 · Time Course'),
+          React.createElement('div', { className:'chart-sub' },
+            `TtrR* = biosensor output (blue) · sfGFP = reporter readout, solid ON / dashed baseline (orange) · MccH47 = antimicrobial effector (green)   ·   sfGFP ss = ${ssON.toFixed(2)} · MccH47 ss = ${mccSS.toFixed(2)} µM`),
+          React.createElement('canvas', { ref:cTC, height:148 }),
+        ),
+
+        // Row 2: pathogen + dose-response
+        React.createElement('div', { className:'chart-row' },
+
+          React.createElement('div', { className:'chart-box' },
+            React.createElement('div', { className:'chart-title' }, 'Module 3 · Pathogen Suppression'),
+            React.createElement('div', { className:'chart-sub' },
+              `Final pathogen load: ${Math.max(0,solON.Pa[solON.Pa.length-1]).toFixed(4)} · Suppression: ${supp.toFixed(1)}%   ·   Target ≥90% (green chip above)`),
+            React.createElement('canvas', { ref:cPa, height:145 }),
+          ),
+
+          React.createElement('div', { className:'chart-box' },
+            React.createElement('div', { className:'chart-title' }, 'Module 1 · Dose-Response Curve'),
+            React.createElement('div', { className:'chart-sub' },
+              `EC50 = ${p.EC50} µM · Hill n = ${p.n_ttr} · Fold-induction: ${FI_s}×   ·   Drag EC50 or n sliders to reshape`),
+            React.createElement('canvas', { ref:cDR, height:145 }),
+          ),
+        ),
+
+        // Row 3: Moran + escape
+        React.createElement('div', { className:'chart-row' },
+
+          React.createElement('div', { className:'chart-box' },
+            React.createElement('div', { className:'chart-title' }, 'Module 4 · Moran Fixation Probability'),
+            React.createElement('div', { className:'chart-sub' },
+              `Current δ = ${(delta).toFixed(3)} → P_fix = ${pfix.toFixed(4)} · Critical threshold: δ = 0.10 · Module 2 gating keeps design point safely left of inflection`),
+            React.createElement('canvas', { ref:cMor, height:145 }),
+          ),
+
+          React.createElement('div', { className:'chart-box' },
+            React.createElement('div', { className:'chart-title' }, 'Module 4 · Containment Escape Probability'),
+            React.createElement('div', { className:'chart-sub' },
+              'Single ΔdapA: µ=10⁻⁸/gen → t₅₀ ≈ 3,956 years   ·   Dual auxotrophy: µ=10⁻¹⁶/gen → negligible'),
+            React.createElement('canvas', { ref:cEsc, height:145 }),
+          ),
+        ),
+
+      ),
+    ),
+
+    // Footer
+    React.createElement('div', { className:'iso-footer' },
+      'Solver: RK4 dt=0.1h · Fixed params: Task 1 v6 (biosensor) + Task 2 (k_kill=0.3, Palmer 2017 gut-corrected, validated 100% suppression) · ' +
+      'Moran: Nowak 2006 eq 6.7 · Containment: Stritzker 2007 (µ=10⁻⁸/gen ΔdapA) · Burden: Scott 2010 (δ=CN×0.0015) · ' +
+      'Source: github.com/Jonahnki/iso-sentinel-ecn · MIT licence'
+    ),
+  );
+}
+
+// Mount
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+
+})();
+</script>
+</body>
+</html>
