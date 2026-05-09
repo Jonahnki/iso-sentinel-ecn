@@ -50,9 +50,12 @@ python 02_models/four_module/iso_four_module_sim.py
 ```
 ## Interactive Simulator
 
-A live browser-based ODE simulator is embedded on the [HTGAA project page](https://pages.htgaa.org/2026a/john-adeyemo-adedeji/projects/individual-final-project/-_index/index.html) under the **Simulator** tab.
+A live browser-based ODE simulator is embedded on the HTGAA project page under the **Simulator** tab:  
+[Project Simulation Website](https://pages.htgaa.org/2026a/john-adeyemo-adedeji/projects/individual-final-project/-_index/index.html)
 
-It runs a full four-module RK4 ODE integration in the browser with no server dependency. All nine gut parameters are user-controllable via sliders. Five real-time metrics update on every parameter change: fold induction, t50, pathogen suppression, burden δ, and Moran fixation probability.
+The system implements a fully client-side four-module Runge–Kutta (RK4) integration framework with no server dependency. Nine gut-system parameters are exposed as interactive sliders, enabling real-time control of system dynamics.
+
+On each parameter update, the model recomputes the coupled ODE system and updates five key emergent metrics: fold induction, t₅₀, pathogen suppression, system burden (δ), and Moran fixation probability.
 
 **Parameters exposed:**
 
