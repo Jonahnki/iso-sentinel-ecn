@@ -1,6 +1,39 @@
-cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-title: "ÌṢỌ Sentinel EcN"
+cff-version: 1.0.0
+
+message: >
+  If you use this software in your research, please cite it using the
+  information below. This ensures reproducibility and proper attribution
+  for the ÌṢỌ Sentinel EcN modeling framework.
+
+title: "ÌṢỌ Sentinel EcN: Constraint-Aware Computational Model for Engineered E. coli Systems"
+
 version: 1.0.0
-doi: 10.5281/zenodo.19362601
+
 date-released: 2026-05-09
+
+doi: 10.5281/zenodo.19362601
+
+url: "https://github.com/Jonahnki/iso-sentinel-ecn"
+
+authors:
+  - family-names: "Adedeji"
+    given-names: "John"
+    orcid: "https://orcid.org/0009-0004-1257-4551"
+
+license: "MIT"
+
+keywords:
+  - synthetic-biology
+  - computational-biology
+  - e-coli-modeling
+  - systems-biology
+  - constraint-based-modeling
+  - microbial-engineering
+
+repository-code: "https://github.com/Jonahnki/iso-sentinel-ecn"
+
+abstract: >
+  ÌṢỌ Sentinel EcN is a model-first, constraint-aware computational framework
+  for simulating engineered Escherichia coli Nissle systems. It integrates
+  metabolic constraints, environmental sensing, and dynamic regulatory logic
+  for synthetic biology and biomedical applications.
