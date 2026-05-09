@@ -1,4 +1,4 @@
-⁸# ÌṢỌ Sentinel EcN
+# ÌṢỌ Sentinel EcN
 
 > *Yoruba: to be well; to recover.*
 
