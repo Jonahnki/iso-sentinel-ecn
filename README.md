@@ -86,7 +86,13 @@ On each parameter update, the model recomputes the coupled ODE system and update
 
 ## Citation
 
-See `CITATION.cff`. ORCID: [0009-0004-1257-4551](https://orcid.org/0009-0004-1257-4551)
+If you use this work, please cite:
+
+[![DOI](https://zenodo.org/badge/1033557469.svg)](https://doi.org/10.5281/zenodo.19362601)
+
+or:
+
+> DOI: 10.5281/zenodo.19362601
 
 ## License
 
