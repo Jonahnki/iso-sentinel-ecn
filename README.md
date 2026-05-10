@@ -82,7 +82,7 @@ On each parameter update, the model recomputes the coupled ODE system and update
 
 **Parameters grounded in:** Palmer et al. 2017 (ACS Infect. Dis.); Stritzker et al. 2007 (Int. J. Med. Microbiol.); Scott et al. 2010 (Science).
 
-**Licence:** MIT. Cite as: Adedeji, J.A. (2026). ÌṢỌ Sentinel EcN computational framework. GitHub: Jonahnki/iso-sentinel-ecn. DOI: [...].
+**Licence:** MIT. Cite as: Adedeji, J.A. (2026). ÌṢỌ Sentinel EcN computational framework. GitHub: Jonahnki/iso-sentinel-ecn. DOI: 10.5281/zenodo.20098747.
 
 ## Citation
 
