@@ -48,6 +48,7 @@ pip install -r requirements.txt
 python 02_models/biosensor/iso_biosensor_sim_v4.py
 python 02_models/four_module/iso_four_module_sim.py
 ```
+
 ## Interactive Simulator
 
 A live browser-based ODE simulator is embedded on the HTGAA project page under the **Simulator** tab:  
@@ -81,11 +82,17 @@ On each parameter update, the model recomputes the coupled ODE system and update
 
 **Parameters grounded in:** Palmer et al. 2017 (ACS Infect. Dis.); Stritzker et al. 2007 (Int. J. Med. Microbiol.); Scott et al. 2010 (Science).
 
-**Licence:** MIT. Cite as: Adedeji, J.A. (2026). ÌṢỌ Sentinel EcN computational framework. GitHub: Jonahnki/iso-sentinel-ecn. DOI: [...].
+**Licence:** MIT. Cite as: Adedeji, J.A. (2026). ÌṢỌ Sentinel EcN computational framework. GitHub: Jonahnki/iso-sentinel-ecn. DOI: 10.5281/zenodo.20098747.
 
 ## Citation
 
-See `CITATION.cff`. ORCID: [0009-0004-1257-4551](https://orcid.org/0009-0004-1257-4551)
+If you use this work, please cite:
+
+[![DOI](https://zenodo.org/badge/1187462265.svg)](https://doi.org/10.5281/zenodo.20098747)
+
+or:
+
+> DOI: 10.5281/zenodo.20098747 
 
 ## License
 
