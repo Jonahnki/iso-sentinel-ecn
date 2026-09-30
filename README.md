@@ -1,4 +1,4 @@
-# ÌṢỌ Sentinel EcN
+# ÌṢỌ Sentinel EcN: Pareto-resolved fitness-governability framework for self-organizing regulatory stability in a conditionally active synthetic gene circuit
 
 > *Yoruba: to be well; to recover.*
 
